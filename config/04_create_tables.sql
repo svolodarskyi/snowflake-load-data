@@ -31,5 +31,6 @@ CREATE OR REPLACE TABLE ANALYTICS_DEV.SILVER.USERS (
     SourceFileRowNumber NUMBER,
     SourceFileLastModified TIMESTAMP_NTZ,
     LoadTs TIMESTAMP_NTZ,
-    LoadId STRING
+    LoadId STRING,
+    BronzeRowId NUMBER
 );

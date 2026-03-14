@@ -1,7 +1,6 @@
-v_load_id STRING;
-v_load_id := 'LOAD_' || TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYYMMDD_HH24MISSFF3');
+USE DATABASE ANALYTICS_DEV;
 
-COPY INTO BRONZE.BRONZE_USERS (
+COPY INTO ANALYTICS_DEV.BRONZE.USERS (
     UserId,
     FirstName,
     LastName,
@@ -19,21 +18,21 @@ COPY INTO BRONZE.BRONZE_USERS (
 )
 FROM (
     SELECT
-        $1                          AS UserId,
-        $2                          AS FirstName,
-        $3                          AS LastName,
-        $4                          AS Email,
-        $5                          AS Phone,
-        $6                          AS Country,
-        $7                          AS IsActive,
-        $8                          AS CreatedAt,
-        $9                          AS UpdatedAt,
-        METADATA$FILENAME           AS SourceFilePath,
-        METADATA$FILE_ROW_NUMBER    AS SourceFileRowNumber,
-        METADATA$FILE_LAST_MODIFIED AS SourceFileLastModified,
-        METADATA$START_SCAN_TIME    AS LoadTs,
-        :v_load_id                  AS LoadId
-    FROM @RAW.STG_RAW/users/
-        (FILE_FORMAT => 'RAW.FF_USERS_CSV')
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        METADATA$FILENAME,
+        METADATA$FILE_ROW_NUMBER,
+        METADATA$FILE_LAST_MODIFIED,
+        METADATA$START_SCAN_TIME,
+        'LOAD_' || TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYYMMDD_HH24MISSFF3')
+    FROM @analytics_dev.raw.azuredata_stage/users/
+        (FILE_FORMAT => 'ANALYTICS_DEV.RAW.FF_USERS_CSV')
 )
 ON_ERROR = 'CONTINUE';
