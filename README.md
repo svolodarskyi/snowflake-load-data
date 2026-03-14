@@ -1,15 +1,8 @@
 ## Pipeline Flow
-RAW (stage)
-   │
-   ▼
-COPY INTO
-   │
-   ▼
-BRONZE.BRONZE_USERS
-   └─ BronzeRowId identity
-   │
-   ▼
-MERGE
-   │
-   ▼
-SILVER.USERS
+
+```mermaid
+flowchart TD
+    A[RAW Stage] --> B[COPY INTO]
+    B --> C[BRONZE.BRONZE_USERS]
+    C --> D[MERGE]
+    D --> E[SILVER.USERS]
