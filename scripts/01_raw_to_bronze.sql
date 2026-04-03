@@ -36,3 +36,5 @@ FROM (
         (FILE_FORMAT => 'ANALYTICS_DEV.RAW.FF_USERS_CSV')
 )
 ON_ERROR = 'CONTINUE';
+
+--SELECT * FROM analytics_dev.bronze.users

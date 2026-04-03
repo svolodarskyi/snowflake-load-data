@@ -1,41 +1,41 @@
+
 USE DATABASE ANALYTICS_DEV;
 
 BEGIN
-    LET v_last_row_id NUMBER := 0;
+    LET v_last_load_ts STRING := '0';
 
-    SELECT COALESCE(MAX(BronzeRowId), 0)
-    INTO :v_last_row_id
+    SELECT COALESCE(MAX(BronzeLoadTs), '1900-01-01')
+    INTO :v_last_load_ts
     FROM SILVER.USERS;
 
     MERGE INTO SILVER.USERS tgt
     USING (
         SELECT
-            b.BronzeRowId,
             TRY_TO_NUMBER(b.UserId) AS UserId,
             b.FirstName,
             b.LastName,
             b.Email,
             b.Phone,
             b.Country,
-            IFF(b.IsActive = '1', TRUE, FALSE) AS IsActive,
-            TRY_TO_TIMESTAMP_TZ(b.CreatedAt) AS SourceInsertedAt,
-            TRY_TO_TIMESTAMP_TZ(b.UpdatedAt) AS SourceUpdatedAt,
+            b.IsActive,
+            b.CreatedAt AS SourceInsertedAt,
+            b.UpdatedAt AS SourceUpdatedAt,
             b.SourceFilePath,
             b.SourceFileRowNumber,
             b.SourceFileLastModified,
-            b.LoadTs,
-            b.LoadId
+            b.LoadTs AS BronzeLoadTs,
+            b.LoadId AS BronzeLoadId
         FROM BRONZE.USERS b
-        WHERE b.BronzeRowId > :v_last_row_id
+        WHERE b.LoadTs > :v_last_load_ts
           AND TRY_TO_NUMBER(b.UserId) IS NOT NULL
           AND b.IsActive IN ('0','1')
-          AND TRY_TO_TIMESTAMP_TZ(b.CreatedAt) IS NOT NULL
-          AND TRY_TO_TIMESTAMP_TZ(b.UpdatedAt) IS NOT NULL
+          AND b.CreatedAt IS NOT NULL
+          AND b.UpdatedAt IS NOT NULL
         QUALIFY ROW_NUMBER() OVER (
             PARTITION BY TRY_TO_NUMBER(b.UserId)
             ORDER BY
-                TRY_TO_TIMESTAMP_TZ(b.UpdatedAt) DESC,
-                b.BronzeRowId DESC
+                b.UpdatedAt DESC,
+                b.LoadTs DESC
         ) = 1
     ) src
     ON tgt.UserId = src.UserId
@@ -53,9 +53,8 @@ BEGIN
         SourceFilePath = src.SourceFilePath,
         SourceFileRowNumber = src.SourceFileRowNumber,
         SourceFileLastModified = src.SourceFileLastModified,
-        LoadTs = src.LoadTs,
-        LoadId = src.LoadId,
-        BronzeRowId = src.BronzeRowId
+        BronzeLoadTs = src.BronzeLoadTs,
+        BronzeLoadId = src.BronzeLoadId
     WHEN NOT MATCHED THEN INSERT (
         UserId,
         FirstName,
@@ -69,9 +68,8 @@ BEGIN
         SourceFilePath,
         SourceFileRowNumber,
         SourceFileLastModified,
-        LoadTs,
-        LoadId,
-        BronzeRowId
+        BronzeLoadTs,
+        BronzeLoadId
     )
     VALUES (
         src.UserId,
@@ -86,8 +84,9 @@ BEGIN
         src.SourceFilePath,
         src.SourceFileRowNumber,
         src.SourceFileLastModified,
-        src.LoadTs,
-        src.LoadId,
-        src.BronzeRowId
+        src.BronzeLoadTs,
+        src.BronzeLoadId
     );
 END;
+
+--SELECT * FROM analytics_dev.SILVER.USERS
