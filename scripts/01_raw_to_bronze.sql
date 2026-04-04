@@ -1,4 +1,16 @@
+-- ============================================================
+-- 1. SET CONTEXT
+-- ============================================================
+---> set Role Context
+USE ROLE ACCOUNTADMIN;
+---> set Warehouse Context
+USE WAREHOUSE COMPUTE_DEV;
+---> set the Database
 USE DATABASE ANALYTICS_DEV;
+
+
+
+
 
 COPY INTO ANALYTICS_DEV.BRONZE.USERS (
     UserId,
