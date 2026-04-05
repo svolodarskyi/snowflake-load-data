@@ -12,7 +12,7 @@ USE SCHEMA SILVER;
 -- ============================================================
 -- 2. CREATE PIPE
 -- ============================================================
-CREATE OR REPLACE PIPE ANALYTICS_DEV.RAW.SV_USERS_PIPE
+CREATE OR REPLACE PIPE ANALYTICS_DEV.BRONZE.SV_USERS_PIPE
   AUTO_INGEST = true
   INTEGRATION = 'SV_AZURE_NOTIFICATION_INTEGRATION'  -- must be UPPERCASE
   AS
@@ -57,7 +57,7 @@ CREATE OR REPLACE PIPE ANALYTICS_DEV.RAW.SV_USERS_PIPE
 -- 3. VERIFY PIPE CREATED CORRECTLY
 -- ============================================================
 SHOW PIPES;
-DESC PIPE ANALYTICS_DEV.RAW.SV_USERS_PIPE;
+DESC PIPE ANALYTICS_DEV.BRONZE.SV_USERS_PIPE;
 
 -- ============================================================
 -- 4. BACKFILL ANY FILES ALREADY IN STAGE

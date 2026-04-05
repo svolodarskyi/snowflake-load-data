@@ -212,6 +212,7 @@ FROM   TABLE(VALIDATE(ANALYTICS_DEV.BRONZE.USERS_DEMO, JOB_ID => '_last'));
   
 -- Option A: INFORMATION_SCHEMA (near real-time, 14-day retention)
 
+
 USE DATABASE analytics_dev;
 USE SCHEMA BRONZE;
 
@@ -226,7 +227,7 @@ SELECT
 FROM TABLE(
     INFORMATION_SCHEMA.COPY_HISTORY(
         TABLE_NAME => 'USERS_DEMO',
-        START_TIME => DATEADD(HOURS, -2, CURRENT_TIMESTAMP())
+        START_TIME => DATEADD(HOURS, -100, CURRENT_TIMESTAMP())
     )
 )
 ORDER BY LAST_LOAD_TIME DESC;
@@ -259,16 +260,17 @@ SELECT
     FIRST_ERROR_MESSAGE
 FROM  SNOWFLAKE.ACCOUNT_USAGE.COPY_HISTORY
 WHERE TABLE_NAME   = 'USERS_DEMO'
-AND   LAST_LOAD_TIME >= DATEADD(DAY, -1, CURRENT_TIMESTAMP())
+AND   LAST_LOAD_TIME >= DATEADD(DAY, -3, CURRENT_TIMESTAMP())
 ORDER BY LAST_LOAD_TIME DESC;
 
--- ============================================================
--- STEP 14. CHECK credit usage
--- ============================================================
+--only specific to bulk load
+SELECT *
+FROM SNOWFLAKE.ACCOUNT_USAGE.LOAD_HISTORY
+WHERE TABLE_NAME = 'USERS_DEMO'
+ORDER BY LAST_LOAD_TIME DESC;
 
-SELECT
-   *
-FROM  SNOWFLAKE.ACCOUNT_USAGE.COPY_FILES_HISTORY
+
+
 
 
 -- ============================================================
